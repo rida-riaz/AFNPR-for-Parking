@@ -5,6 +5,9 @@ from tkinter import filedialog
 from PIL import Image,ImageTk
 from matplotlib import image
 from Admin_panel import DriverRecord
+from training_dataset import train_data
+from Face_Recognition import face_recognition
+from download_report import DownloadReport
 
 
 
@@ -43,42 +46,52 @@ class AFNPR:
         left.place(x=1000,y=30,width=280,height=300)
         left.bind('<Button-1>', self.change_password)
 
-        #download record image
-        root.img5=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/download report .jpeg")
+        #photo Sample image
+        root.img5=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/Photo Sample.png")
         left=Label(root,image=root.img5,cursor="hand2")
         left.place(x=30,y=380,width=280,height=300)
-        left.bind('<Button-1>', self.download_record)
+        left.bind('<Button-1>', self.Display_Sample)
+
+        #Train image
+        root.img6=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/train sample.png")
+        left=Label(root,image=root.img6,cursor="hand2")
+        left.place(x=350,y=380,width=280,height=300)
+        left.bind('<Button-1>', self.train_dataSample)
 
         #download record image
-        root.img5=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/download report .jpeg")
-        left=Label(root,image=root.img5,cursor="hand2")
-        left.place(x=30,y=380,width=280,height=300)
+        root.img7=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/download report .jpeg")
+        left=Label(root,image=root.img7,cursor="hand2")
+        left.place(x=670,y=380,width=280,height=300)
         left.bind('<Button-1>', self.download_record)
 
         #logout image
-        root.img6=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/Exit .jpeg")
-        left=Label(root,image=root.img6,cursor="hand2")
-        left.place(x=350,y=380,width=280,height=300)
+        root.img8=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/Exit .jpeg")
+        left=Label(root,image=root.img8,cursor="hand2")
+        left.place(x=1000,y=380,width=280,height=300)
         left.bind('<Button-1>', self.logout)
 
 
+    
+    
+    def Display_Sample(self,ev):
+
+        os.startfile("sample_data")
+    
+    
     def manage_driver_record(self,ev):
 
         self.new_window = Toplevel(self.root)
         self.app = DriverRecord(self.new_window)
 
-        
-        # # self.root.destroy()
-        # import Admin_panel
-        # Admin_panel.DriverRecord()
-        
-        # print("i'm clicked")
 
+    def train_dataSample(self,ev):
+
+        self.new_window = Toplevel(self.root)
+        self.app = train_data(self.new_window)
+    
     def face_detection(self,ev):
-        # root = Toplevel()
-        # import Admin_panel
-        # Admin_panel.DriverRecord()
-        print("i'm clicked")
+        self.new_window = Toplevel(self.root)
+        self.app = face_recognition(self.new_window)
 
     def number_plate_detection(self,ev):
         # root = Toplevel()
@@ -93,10 +106,9 @@ class AFNPR:
         print("i'm clicked")
     
     def download_record(self,ev):
-        # root = Toplevel()
-        # import Admin_panel
-        # Admin_panel.DriverRecord()
-        print("i'm clicked")
+        self.new_window = Toplevel(self.root)
+        self.app = DownloadReport(self.new_window)
+
 
     def logout(self,ev):
         # root = Toplevel()
@@ -104,6 +116,7 @@ class AFNPR:
         # Admin_panel.DriverRecord()
         print("i'm clicked")
 
-root=Tk()
-obj=AFNPR(root)
-root.mainloop()
+if __name__ == "__main__":
+    root=Tk()
+    obj=AFNPR(root)
+    root.mainloop()

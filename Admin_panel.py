@@ -1,11 +1,10 @@
-from optparse import Values
 from tkinter import *
 from tkinter import ttk
 from tkinter.font import BOLD, ITALIC
-from matplotlib.pyplot import get
 import pymysql
 from tkinter import filedialog, messagebox
 from PIL import Image,ImageTk
+import cv2
 
 class DriverRecord:
     def __init__(self,root):
@@ -15,7 +14,7 @@ class DriverRecord:
         self.root.geometry("1350x700+0+0")
 
 
-        title = Label(self.root, text="Manage Driver's Record",font=("aleo", 26, BOLD), relief=GROOVE, bg="#c0eff2", fg="#0A6870")
+        title = Label(self.root, text="Manage Driver's Record",font=("aleo", 26, "bold"), relief=GROOVE, bg="#c0eff2", fg="#0A6870")
         title.pack(side=TOP, fill=X)
 
         # Defining my variables==================
@@ -84,6 +83,11 @@ class DriverRecord:
         Deletebtn = Button(button_Frame,text="Delete",command=self.Delete_data,fg="#0D8C8C",bg="white",font=("aleo",12,"bold"),width=7, height=1).grid(row=0,column=2,padx=10,pady=7)
 
         Clearbtn = Button(button_Frame,text="Clear", command=self.clear,fg="#0D8C8C",bg="white",font=("aleo",12,"bold"),width=6, height=1).grid(row=0,column=3,padx=10,pady=7)
+
+        TakePhotoSamplebtn = Button(Manage_Driver_Frame,text="Take Photo Sample", command=self.generate_dataset,fg="#0D8C8C",bg="white",font=("aleo",12,"bold"))
+        TakePhotoSamplebtn.place(x=120, y=510,width=200,height=30)
+
+       
 
        # search ===============
         
@@ -287,30 +291,63 @@ class DriverRecord:
         self.gender.set(row[4])
 
     def Update_data(self):
-        con =   pymysql.connect(host="localhost", user="root", password="", database="afnpr system")
-        cursor=con.cursor()
-        cursor.execute("update Driver_Registration_form set Driver_Name=%s, Contact=%s, Gender=%s, Vehicle_Number=%s where Driver_ID=%s",
-                        (
-                            self.driver_name.get(),
-                            self.contact.get(),
-                            self.gender.get(),
-                            self.vehicle_no.get(),
-                            self.driver_ID.get()
-                      ))
+        
+        if self.driver_ID=="" or self.driver_name.get()=="" or self.contact.get()=="" or self.vehicle_no.get()=="" or self.gender.get()=="Select" :
+            messagebox.showerror("Error","Select Data to Update", parent = self.root)
+        else:
+            try:
+                Update = messagebox.askyesno("Update","Do you want to update this driver's detail?", parent=self.root)
+                if Update>0:
+                    con =   pymysql.connect(host="localhost", user="root", password="", database="afnpr system")
+                    cursor=con.cursor()
+                    cursor.execute("update Driver_Registration_form set Driver_Name=%s, Contact=%s, Gender=%s, Vehicle_Number=%s where Driver_ID=%s",
+                                (
+                                    self.driver_name.get(),
+                                    self.contact.get(),
+                                    self.gender.get(),
+                                    self.vehicle_no.get(),
+                                    self.driver_ID.get()
+                            ))
 
-        con.commit()
-        self.fetch_data()
-        self.clear()
-        con.close()
+                else:
+                    if not Update:
+                        return
+                messagebox.showinfo("Success","Driver's Details Updated Successfully!", parent = self.root)
+                con.commit()
+                self.fetch_data()
+                self.clear()
+                con.close()
+
+            except Exception as es:
+                messagebox.showerror("Error",f"Error due  to: {str(es)}", parent = self.root)
+
+        
+        
+        
 
     def Delete_data(self):
-        con = pymysql.connect(host="localhost", user="root", password="", database="afnpr system")
-        cursor=con.cursor()
-        cursor.execute("delete from Driver_Registration_form where Driver_ID=%s",self.driver_ID.get())
-        con.commit()
-        con.close()
-        self.fetch_data()
-        self.clear()
+        if self.driver_ID=="":
+            messagebox.showerror("Error","Driver's ID is Required, please select driver!", parent = self.root)
+        else:
+            try:
+                Delete = messagebox.askyesno("Delete Detail","Do you want to Delete this driver's detail?", parent=self.root)
+                if Delete>0:
+                        con = pymysql.connect(host="localhost", user="root", password="", database="afnpr system")
+                        cursor=con.cursor()
+                        cursor.execute("delete from Driver_Registration_form where Driver_ID=%s",self.driver_ID.get())
+
+                else:
+                    if not Delete:
+                        return
+               
+                con.commit()
+                con.close()
+                self.fetch_data()
+                self.clear()
+                messagebox.showinfo("Success","Driver's Details Deleted Successfully!", parent = self.root)
+
+            except Exception as es:
+                messagebox.showerror("Error",f"Error due  to: {str(es)}", parent = self.root)
 
     def search_data(self):
         con = pymysql.connect(host="localhost", user="root", password="", database="afnpr system")
@@ -325,7 +362,71 @@ class DriverRecord:
         con.close()
 
 
-root = Tk()
-obj = DriverRecord(root)
-root.mainloop()
+
+
+
+    def generate_dataset(self):
+        con =   pymysql.connect(host="localhost", user="root", password="", database="afnpr system")
+        cursor=con.cursor()
+        cursor.execute("Select * from driver_registration_form")
+        myresult = cursor.fetchall()
+        id=0
+        for x in myresult:
+            id+=1
+        cursor.execute("update Driver_Registration_form set Driver_Name=%s, Contact=%s, Gender=%s, Vehicle_Number=%s where Driver_ID=%s",
+                            (
+                                self.driver_name.get(),
+                                self.contact.get(),
+                                self.gender.get(),
+                                self.vehicle_no.get(),
+                                self.driver_ID.get()== id+1
+                        ))
+
+        con.commit()
+        self.clear()
+        con.close()    
+
+        # =============== pre-define face data(harcascade) from opencv
+
+        face_classifier = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+
+        def face_cropped(img):
+            gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+            faces= face_classifier.detectMultiScale(gray,1.3,5) 
+            # scaling factor= 1.3
+            # min neighbour = 5
+
+            for(x,y,w,h) in faces:
+                face_cropped= img[y:y+h,x:x+w]
+                return face_cropped
+
+        cap = cv2.VideoCapture(0)
+        img_id=0
+        while True:
+            ret,my_frame = cap.read()
+            if face_cropped(my_frame) is not None:
+                img_id+=1
+                face= cv2.resize(face_cropped(my_frame),(450,450))
+                face= cv2.cvtColor(face,cv2.COLOR_BGR2GRAY)
+                file_name_path= "sample_data/user."+str(id)+"."+str(img_id)+".jpg"
+                cv2.imwrite(file_name_path,face)
+                cv2.putText(face,str(img_id),(50,50),cv2.FONT_HERSHEY_PLAIN,2,(0,255,0),2)
+                cv2.imshow("Cropped face", face)
+                
+
+            if cv2.waitKey(1)==13 or int(img_id)==100:
+                break
+        
+        cap.release()
+        cv2.destroyAllWindows()
+        messagebox.showinfo("Result", "Data Sample collection Completed Successfully!")
+
+
+    
+
+
+if __name__ == "__main__":
+    root = Tk()
+    obj = DriverRecord(root)
+    root.mainloop()
 
