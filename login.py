@@ -1,64 +1,41 @@
-# from curses import newwin
-from cProfile import label
-from email import message
-import imp
-from multiprocessing import parent_process
-from turtle import update
-from typing import Counter
-from PIL import Image, ImageTk, ImageDraw
+from tkinter import *
+from tkinter import ttk
+from tkinter.font import BOLD, ITALIC
 import pymysql
-import imp
-from cgitb import text
-from concurrent.futures import process
-import email
-from email.message import EmailMessage
-from tkinter import font, messagebox
-from tkinter import*
-from tkinter.tix import WINDOW
+import os
+import numpy as np
+from tkinter import filedialog, messagebox
+from PIL import Image,ImageTk
+from AFNPR_main_System import AFNPR
+from matplotlib import image
+from Admin_panel import DriverRecord
+from training_dataset import train_data
+from Face_Recognition import face_recognition
+from download_report import DownloadReport
 
 
 
 class Login:
-
     def __init__(self,root):
-      
         self.root = root
         self.login_form()
-        # self.root.title("Admin Login")
-        # self.root.geometry("1199x650+100+50")
-       
-        # root.bg = ImageTk.PhotoImage(
-        #     file="E:/Python/login.py/bgg.jpeg")
-        # bg = Label(root, image=root.bg).place(
-        #     x=0, y=0, relwidth=1, relheight=1)
-
-        # self.root.resizable(False, False)
-        # self.login_form()
-      
-        # root.left = ImageTk.PhotoImage(file="E:/Python/login.py/left bar.png")
-        # left = Label(root, image=root.left).place(
-        #     x=80, y=100, width=400, height=500)
-       
-           # FrAME###3
+   
     def login_form(self):
         self.root = root
         self.root.title("Admin Login")
-        self.root.geometry("1199x650+100+50")
+        self.root.geometry("1350x700+0+0")
        
-        root.bg = ImageTk.PhotoImage(
-            file="E:/Python/login.py/bgg.jpeg")
-        bg = Label(root, image=root.bg).place(
-            x=0, y=0, relwidth=1, relheight=1)
+        root.bg = ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/admin pics/bgg.jpeg")
+        bg = Label(root, image=root.bg).place(x=0, y=0, relwidth=1, relheight=1)
 
-        self.root.resizable(False, False)
+        # self.root.resizable(False, False)
        
       
-        root.left = ImageTk.PhotoImage(file="E:/Python/login.py/left bar.png")
-        left = Label(root, image=root.left).place(
-            x=80, y=100, width=400, height=500)
+        root.left = ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/admin pics/left bar.png")
+        left = Label(root, image=root.left).place(x=240, y=100, width=400, height=500)
     
         Frame_login = Frame(self.root, bg="white")
-        Frame_login.place(x=480, y=100, height=500, width=500)
+        Frame_login.place(x=630, y=100, height=500, width=500)
         title = Label(Frame_login, text="Admin Login", font=(
             "aleo", 26, "bold", "italic"), bg="white", fg="#0A6870").place(x=90, y=30)
         lbl_user = Label(Frame_login,  text="Username", font=("aleo", 15),
@@ -82,30 +59,9 @@ class Login:
         ), activebackground="#00b8f8", width=30, height=1, cursor="hand2", fg="#0D8C8C", bg="#c0eff2", font=(
             "aleo", 13, "bold")).place(x=110, y=430)
         
-        # btn3 = Button(Frame_login, command=self.Register_Frame(), activebackground="#00b8f8", width=15, height=1, fg="#0D8C8C", bg="#c0eff2", font=(
-        #     "aleo", 13, "bold"),
-        #              text="Not Registered Yet? Register Now", cursor="hand2").place(x=100, y=170)
-
        
        
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-        #Forget Window##
+    #Forget Window##
 
     def fwindow(self):
 
@@ -120,14 +76,14 @@ class Login:
 
         self.forgetwindow.resizable(False, False)
 
-        ###USERNAME LABEL FOR FORGET PASSOWRD WINDOW###
+        # =========USERNAME LABEL FOR FORGET PASSOWRD WINDOW======================
         self.txt_user = Label(self.forgetwindow, text="Email",  font=(
             "aleo", 15), fg="white", bg="#0A6870")
         self.txt_user.place(x=160, y=110)
         self.entry3 = Entry(self.forgetwindow, font=("aleo", 15), bg="#c0eff2")
         self.entry3.place(x=160, y=140, width=260)
 
-        #NEW PASSWORD LABEL FOR FORGET PASSWORD WINDOW##
+        #NEW PASSWORD LABEL FOR FORGET PASSWORD WINDOW==========================
         self.txt_user = Label(self.forgetwindow, text="New Password", font=(
             "aleo", 15), fg="white", bg="#0A6870")
         self.txt_user.place(x=160, y=210)
@@ -149,19 +105,6 @@ class Login:
         self .chbutton.place(x=160, y=410, width=260, height=40)
         #####DATABASE###
 
-    # def logindata(self):
-    #     if self.txt_user.get()=="" or self.txt_pass.get()=="":
-    #         messagebox.showerror("Error","All fields are required", parent=self.root)
-    #     else:
-        
-    #         con = pymysql.connect(host="localhost", user="root", password="", database="admin database")
-    #         cur = con.cursor()
-    #         cur.execute("select * from register")
-    #         row = cur.fetchall()
-    #     if row == None:
-    #         messagebox.showerror("Warning", "user not found")
-    #     else:
-    #         messagebox.showinfo("success", "Login Successfull")
 
     # working on forget window
 
@@ -171,11 +114,11 @@ class Login:
 
         else:
             try:
-                con = pymysql.connect(host="localhost", user="root", password='', database="admin_database")
+                con = pymysql.connect(host="localhost", user="root", password="", database="afnpr system")
                 cur = con.cursor()
                 if self.entry4.get() == self.entry5.get():
                     
-                    cur.execute("UPDATE register SET Pass_word=%s, Confirm_Password=%s WHERE Email=%s", (
+                    cur.execute("UPDATE register_admin SET Admin_password=%s, Admin_Con_Pass=%s WHERE Admin_Email=%s", (
                     self.entry4.get(), 
                     self.entry5.get(), 
                     self.entry3.get()
@@ -196,10 +139,9 @@ class Login:
         
         else:
             try:
-                con = pymysql.connect(
-                    host="localhost", user="root", password='', database="admin_database")
+                con = pymysql.connect(host="localhost", user="root", password="", database="afnpr system")
                 cur = con.cursor()
-                cur.execute('select * from register where Username=%s and Pass_word=%s',
+                cur.execute('select * from register_admin where Ad_Username=%s and Admin_password=%s',
                             (self.txt_user.get(), self.txt_pass.get()))
                 row = cur.fetchall()
                
@@ -210,55 +152,18 @@ class Login:
               
                 elif row:
                     messagebox.showinfo("Success", "Login successfull")
+                    # self.root.destroy()
                     self.appscreen()
                     con.close()
-                  
-            
 
                 else:
                  messagebox.showerror("Error", "Invalid Username or Password")
             except Exception as es:
-                messagebox.showerror(
-                    'Error', f"Error due to:{str(es)}", parent=self.root)
+                messagebox.showerror('Error', f"Error due to:{str(es)}", parent=self.root)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # def __init__(self, root):
-    #     self.root = root
-    #     self.root.title("Registration Form")
-    #     self.root.geometry("1350x700+0+0")
-    #     self.root.config(bg="white")
-    #     # background
-    #     root.bg = ImageTk.PhotoImage(
-    #         file="E:/Python/login.py/bgg.jpeg")
-    #     bg = Label(root, image=root.bg).place(
-    #         x=0, y=0, relwidth=1, relheight=1)
-
-    #     # left image
-    #     root.left = ImageTk.PhotoImage(
-    #         file="E:/Python/login.py/left bar.png")
-    #     left = Label(root, image=root.left).place(
-    #         x=80, y=100, width=400, height=500)
        
 
-        # Register frame
+    # Register frame============================
     def Register_form(self):
         self.root = root
         self.root.title("Registration Form")
@@ -266,13 +171,13 @@ class Login:
         self.root.config(bg="white")
         # background
         root.bg = ImageTk.PhotoImage(
-            file="E:/Python/login.py/bgg.jpeg")
+            file="C:/Users/Data/Desktop/Project Work/code file/admin pics/bgg.jpeg")
         bg = Label(root, image=root.bg).place(
             x=0, y=0, relwidth=1, relheight=1)
 
         # left image
         root.left = ImageTk.PhotoImage(
-            file="E:/Python/login.py/left bar.png")
+            file="C:/Users/Data/Desktop/Project Work/code file/admin pics/left bar.png")
         left = Label(root, image=root.left).place(
             x=80, y=100, width=400, height=500)
             
@@ -335,14 +240,14 @@ class Login:
             messagebox.showerror("Error","Password and Confirm Password should be same", parent=self.root)
         else: 
             try:
-                con=pymysql.connect(host="localhost", user="root", password="",database="admin_database")
+                con=pymysql.connect(host="localhost", user="root", password="", database="afnpr system")
                 cur=con.cursor()
-                cur.execute("select * from register  where username=%s", self.text_fUname.get())
+                cur.execute("select * from register_admin  where Ad_Username=%s", self.text_fUname.get())
                 row=cur.fetchone()
                 if row!=None:
                      messagebox.showerror("Error", "User Already Exist, Please try with other username",parent=self.root)
                 else:
-                     cur.execute("insert into register values(%s, %s, %s, %s, %s, %s)",(self.text_fname.get(), self.text_fUname.get(), self.text_contact.get(), self.text_Email.get(), self.text_Password.get(), self.text_CPassword.get()))
+                     cur.execute("insert into register_admin values(%s, %s, %s, %s, %s, %s)",(self.text_fname.get(), self.text_fUname.get(), self.text_contact.get(), self.text_Email.get(), self.text_Password.get(), self.text_CPassword.get()))
 
                      con.commit()    
                      con.close()
@@ -350,12 +255,112 @@ class Login:
             except Exception as es:
                 messagebox.showerror("Error",f"Error due to:{str(es)}", parent=self.root) 
     def appscreen(self):
-         Frame_login=Frame(self.root, bg="White")
-         Frame_login.place(x=0, y=0, height=700, width=366)
-         label1=Label(Frame_login, text="Hi", fg="Black", bg="white", font="serif" )
-         label1.place(x=375, y=100)
-      
-root = Tk()
-obj = Login(root)
+        self.root=root
+        self.root.title("AFNPR System")
+        self.root.geometry("1350x700+0+0")
+        self.root.config(bg="white")
+        #background
+        root.bg=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/admin pics/bgg.jpeg")
+        bg=Label(root,image=root.bg).place(x=0,y=0,relwidth=1,relheight=1)
+       
+        #manage drivers record image
+        root.img1=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/driver 2.jpg")
+        left=Label(root,image=root.img1,cursor="hand2")
+        left.place(x=30,y=30,width=280,height=300)
+        left.bind('<Button-1>', self.manage_driver_record)
+        
 
-root.mainloop()
+        #face detection image
+        root.img2=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/face detection .jpeg")
+        left=Label(root,image=root.img2,cursor="hand2")
+        left.place(x=350,y=30,width=280,height=300)
+        left.bind('<Button-1>', self.face_detection)
+
+        #number plate detection image
+        root.img3=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/number plate detection .jpeg")
+        left=Label(root,image=root.img3,cursor="hand2")
+        left.place(x=670,y=30,width=280,height=300)
+        left.bind('<Button-1>', self.number_plate_detection)
+
+        #change password image
+        root.img4=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/change password .jpeg")
+        left=Label(root,image=root.img4,cursor="hand2")
+        left.place(x=1000,y=30,width=280,height=300)
+        left.bind('<Button-1>', self.change_password)
+
+        #photo Sample image
+        root.img5=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/Photo Sample.png")
+        left=Label(root,image=root.img5,cursor="hand2")
+        left.place(x=30,y=380,width=280,height=300)
+        left.bind('<Button-1>', self.Display_Sample)
+
+        #Train image
+        root.img6=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/train sample.png")
+        left=Label(root,image=root.img6,cursor="hand2")
+        left.place(x=350,y=380,width=280,height=300)
+        left.bind('<Button-1>', self.train_dataSample)
+
+        #download record image
+        root.img7=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/download report .jpeg")
+        left=Label(root,image=root.img7,cursor="hand2")
+        left.place(x=670,y=380,width=280,height=300)
+        left.bind('<Button-1>', self.download_record)
+
+        #logout image
+        root.img8=ImageTk.PhotoImage(file="C:/Users/Data/Desktop/Project Work/code file/images/Exit .jpeg")
+        left=Label(root,image=root.img8,cursor="hand2")
+        left.place(x=1000,y=380,width=280,height=300)
+        left.bind('<Button-1>', self.logout)
+
+
+    
+    
+    def Display_Sample(self,ev):
+
+        os.startfile("sample_data")
+    
+    
+    def manage_driver_record(self,ev):
+
+        self.new_window = Toplevel(self.root)
+        self.app = DriverRecord(self.new_window)
+
+
+    def train_dataSample(self,ev):
+
+        self.new_window = Toplevel(self.root)
+        self.app = train_data(self.new_window)
+    
+    def face_detection(self,ev):
+        self.new_window = Toplevel(self.root)
+        self.app = face_recognition(self.new_window)
+
+    def number_plate_detection(self,ev):
+        # root = Toplevel()
+        # import Admin_panel
+        # Admin_panel.DriverRecord()
+        print("i'm clicked")
+
+    def change_password(self,ev):
+        # root = Toplevel()
+        # import Admin_panel
+        # Admin_panel.DriverRecord()
+        print("i'm clicked")
+    
+    def download_record(self,ev):
+        self.new_window = Toplevel(self.root)
+        self.app = DownloadReport(self.new_window)
+
+
+    def logout(self,ev):
+        # root = Toplevel()
+        # import Admin_panel
+        # Admin_panel.DriverRecord()
+        print("i'm clicked")
+
+
+
+if __name__ == "__main__":
+    root = Tk()
+    obj = Login(root)
+    root.mainloop()
